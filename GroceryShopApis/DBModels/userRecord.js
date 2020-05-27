@@ -1,5 +1,7 @@
 const mongoose=require("mongoose");
 const Joi=require("@hapi/joi");
+let config=require("config");
+let jwt=require("jsonwebtoken");
 
 let userSchema=new mongoose.Schema({
   firstName:{type:String,required:true,min:3,max:50},
@@ -9,13 +11,18 @@ let userSchema=new mongoose.Schema({
       userEmail:{type:String,required:true,min:5,max:50,unique:true},
       userPassword:{type:String,required:true,min:5,max:25}
   },
-  termsAcceptCheck:{type:Boolean,required:true},
+  termsAcceptCheck:{type:Boolean},
   resetPasswordToken:{type:String},
   resetPasswordExpires:{type:Date},
   isAdmin:{type:Boolean},
   recordDate:{type:Date,default:Date.now},
   updateRecord:{type:Date,default:Date.now}
 });
+
+userSchema.methods.UserToken=function(){
+  let token=jwt.sign({_id:this._id},config.get("apitoken"));
+  return token; 
+}
 let userModel=mongoose.model("userRecord",userSchema);
 
 function userValidation(msg){
@@ -27,7 +34,7 @@ function userValidation(msg){
         userEmail:Joi.string().required().min(5).max(50).email(),
         userPassword:Joi.string().required().min(5).max(25)
     },
-    termsAcceptCheck:Joi.boolean().required(),
+    termsAcceptCheck:Joi.boolean(),
     resetPasswordToken:Joi.string(),
     resetPasswordExpires:Joi.date(),
     isAdmin:Joi.boolean(),

@@ -22,6 +22,7 @@ router.post("/addCategory",async(req,res)=>{
     let category=product.categoryModel({
         catName:req.body.catName,
         subCat:{
+                 _id:subcats._id,
                  name:subcats.name
                }
     });

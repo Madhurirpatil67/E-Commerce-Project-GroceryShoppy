@@ -1,0 +1,32 @@
+.divmain{
+    width:600px;
+    height:500px;
+    margin: 30px auto 30px auto; 
+    box-shadow: 5px 10px #DC143C;
+    border-radius: 30px;
+    background-image: linear-gradient(to bottom,coral, rgb(216, 216, 105),#BA55D3);
+}
+.divmain p{
+    text-align: center;
+    color: white;
+    font-size: 30px;
+}
+.divmain h3{
+    text-align: center;
+    text-decoration: underline;
+    font-family: 'Times New Roman', Times, serif;
+}
+.inputstyle input{
+    margin-left:140px;
+}
+.inputstyle label{
+    margin-left:140px;
+    font-size: 15px;
+    font-weight: 700;
+}
+.inputstyle button{
+    margin-left:230px;
+}
+.srv-validation-message{
+    color: red;
+}

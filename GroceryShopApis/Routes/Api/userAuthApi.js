@@ -3,21 +3,32 @@ let router=express.Router();
 let bcrypt=require("bcrypt");
 let Joi=require("@hapi/joi");
 let user=require("../../DBModels/userRecord");
+let auth=require("../middleware/user.auth");
+let admin=require("../middleware/admin");
 
-router.get("/users",async(req,res)=>{
+router.get("/me",auth,async(req,res)=>{
+  let data=await user.userModel.findById(req.user._id)
+  .select("-userLogin.userPassword -isAdmin");
+  res.send(data);
+});
+
+router.get("/users",auth,async(req,res)=>{
     let data=await user.userModel.find();
     res.send({item:data});
 });
 
 router.post("/login",async(req,res)=>{
   let {error}=loginValidation(req.body);
-  if(error){return res.send(error.details[0].message)}
+  if(error){
+    return res.send(error.details[0].message)
+  }
 
   let users=await user.userModel.findOne({"userLogin.userEmail":req.body.userLogin.userEmail});
   if(!users){return res.status(403).send({message:"Invalid Email Id"})}
   let password=await bcrypt.compare(req.body.userLogin.userPassword,users.userLogin.userPassword);
   if(!password){return res.status(403).send({message:"Invalid Password"})}
-  res.send({message:"Login Successfully"});
+  let token=users.UserToken();
+  res.header("x-auth-token",token).send({message:"Login Successfully",token:token});
 });
 
 router.post("/register",async(req,res)=>{
@@ -51,13 +62,13 @@ router.post("/register",async(req,res)=>{
 
 function loginValidation(msg)
 {
-   let Schema=Joi.object({
+   let Schemas=Joi.object({
     userLogin:{
-                userEmail:Joi.string().required().min(5).max(50).email(),
-                userPassword:Joi.string().required().min(5).max(25)
+                userEmail:Joi.string().required(),
+                userPassword:Joi.string().required()
                }
    });
-   return Schema.validate(msg);
+   return Schemas.validate(msg);
 };
 
 module.exports=router;
